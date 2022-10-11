@@ -1,4 +1,4 @@
-export function makeEmojiList(minutes) {
+export function makeEmojiList(minutes: number) {
   const interval = minutes < 30 ? 5 : 10;
   const emoji = minutes < 30 ? "☕️" : "🍱";
 

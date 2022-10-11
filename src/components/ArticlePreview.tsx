@@ -1,6 +1,6 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import { makeEmojiList } from "../utils";
+import { Post } from "../data/types";
 
 function ArticlePreview({
   id,
@@ -8,7 +8,7 @@ function ArticlePreview({
   date = "January 1, 1970",
   preview,
   minutes,
-}) {
+}: Post) {
   const emojis = makeEmojiList(minutes);
 
   return (
