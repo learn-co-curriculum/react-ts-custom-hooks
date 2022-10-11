@@ -314,7 +314,8 @@ function useQuery(url: string) {
 ```
 
 Now, to use our more generic version of this hook in the `HomePage` component,
-we just need to make a couple small changes:
+we just need to make a couple small changes. We can remove the state variables
+and replace them with our query:
 
 ```jsx
 // src/components/HomePage.tsx
@@ -330,7 +331,8 @@ in when we call the hook. It now also returns an object with a more generic name
 (`data`), so we can [re-name that variable][destructure rename] to `posts` when
 destructuring.
 
-The `useQuery` hook should now also work with our `ArticlePage` component:
+The `useQuery` hook should now also work similarly with our `ArticlePage`
+component:
 
 ```jsx
 // src/components/ArticlePage.tsx

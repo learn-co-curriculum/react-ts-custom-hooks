@@ -5,7 +5,8 @@ import { Post } from "../data/types";
 function useQuery(url: string) {
   const [isLoaded, setIsLoaded] = useState(false);
   // rename `posts` to a more generic `data`
-  const [data, setData] = useState<Post[]>([]);
+  // expand typing to also accept a single Post and the null initial value
+  const [data, setData] = useState<Post[] | Post | null>(null);
 
   useEffect(() => {
     setIsLoaded(false);
