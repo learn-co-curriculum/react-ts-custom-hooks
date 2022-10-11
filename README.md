@@ -9,15 +9,15 @@
 One of the most powerful features of React hooks is that they give us the
 ability to share logic and state between multiple components by writing our own
 **custom hooks**. You've already encountered some custom hooks: the `useParams`
-and `useHistory` hooks from React Router are hooks that let us access the
-`params` and `history` objects from React Router in any component we want. In
+and `useNavigate` hooks from React Router are hooks that let us access the
+`params` and `navigate` objects from React Router in any component we want. In
 this lesson, you'll learn how to create your own custom hooks by extracting
 hooks-related logic out of components and into a reusable hook function.
 
 ## Setup
 
 This lesson has some starter code for a blog site using React Router. The data
-for the blog is saved in a `db.json` file, which we'll serve up using
+for the blog is saved in a `src/data/db.json` file, which we'll serve up using
 `json-server`. To get started, run `npm install`. Then, run `npm run server` to
 run our `json-server` backend in one terminal tab. Open another terminal tab and
 run `npm start` to run our React frontend.
@@ -29,12 +29,12 @@ before moving on.
 ## Extracting Custom Hooks
 
 In both the `HomePage` and `ArticlePage` components, you'll notice that we are
-using the `useEffect` hook in order to set the document title. The [document
+using the `useEffect` hook to set the document title. The [document
 title][title] is an important part of any website, because it:
 
-- is displayed in the browser tab
-- is also displayed in the browser history
-- helps with accessibility and search engine optimization (SEO)
+- Is displayed in the browser tab.
+- Is also displayed in the browser history.
+- Helps with accessibility and search engine optimization (SEO).
 
 Since we have similar logic for updating the title in both of our components
 (and we might want this functionality in other components as our app grows),
@@ -44,7 +44,7 @@ file for our custom hook: `/src/hooks/useDocumentTitle.js`. Let's take the
 a function called `useDocumentTitle`:
 
 ```jsx
-// src/hooks/useDocumentTitle.js
+// src/hooks/useDocumentTitle.ts
 import { useEffect } from "react";
 
 function useDocumentTitle() {
@@ -77,7 +77,8 @@ Now that we've extracted this custom hook to its own file, we can import it and
 use it in our `HomePage` component:
 
 ```jsx
-import React, { useEffect, useState } from "react";
+// src/hooks/useDocumentTitle.ts
+import { useEffect, useState } from "react";
 import About from "./About";
 import ArticleList from "./ArticleList";
 import useDocumentTitle from "../hooks/useDocumentTitle";
@@ -102,7 +103,7 @@ Updating our `ArticlePage` component won't quite work with our new custom hook
 just yet, since the title is dynamic in this component:
 
 ```jsx
-// src/components/ArticlePage.js
+// src/components/ArticlePage.tsx
 function ArticlePage() {
   //...
 
@@ -120,7 +121,8 @@ To solve this, we can update our `useDocumentTitle` hook to accept an argument
 of the page title:
 
 ```jsx
-function useDocumentTitle(pageTitle) {
+// src/hooks/useDocumentTitle.ts
+function useDocumentTitle(pageTitle: string) {
   useEffect(() => {
     document.title = pageTitle;
   }, [pageTitle]);
@@ -131,7 +133,7 @@ Now, both our components can use this custom hook by passing in a page title
 when calling the hook:
 
 ```jsx
-// src/components/ArticlePage.js
+// src/components/ArticlePage.tsx
 function ArticlePage() {
   //...
 
@@ -141,7 +143,7 @@ function ArticlePage() {
   //...
 }
 
-// src/components/HomePage.js
+// src/components/HomePage.tsx
 function HomePage() {
   //...
 
@@ -162,18 +164,18 @@ similarities with regards to data fetching:
 - They both use the `useEffect` hook to fetch data as a side effect of rendering
   the component
 
-By noticing these similarities, we can recognize what logic is coupled together and
-what we'd need to extract in order to build out our custom hook.
+By noticing these similarities, we can recognize what logic is coupled together
+and what we'd need to extract in order to build out our custom hook.
 
-Let's start with the `HomePage` component once again. Here's all of the logic that
-is related to working with our API:
+Let's start with the `HomePage` component once again. Here's all of the logic
+that is related to working with our API:
 
 ```jsx
-// src/components/HomePage.js
+// src/components/HomePage.tsx
 function HomePage() {
   // fetch data for posts
   const [isLoaded, setIsLoaded] = useState(false);
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState<Post[]>([]);
 
   useEffect(() => {
     setIsLoaded(false);
@@ -193,12 +195,13 @@ To start off with, let's take all this code out from our `HomePage` component
 and create a new custom hook called `useQuery`, for querying data from our API:
 
 ```jsx
-// src/hooks/useQuery.js
+// src/hooks/useQuery.ts
 import { useState, useEffect } from "react";
+import { Post } from "../data/types";
 
 function useQuery() {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState<Post[]>([]);
 
   useEffect(() => {
     setIsLoaded(false);
@@ -222,20 +225,21 @@ Unlike our previous custom hook, however, we're going to need to get some data
 back out of this component. Specifically, when we're using this component, we'll
 need access to two things:
 
-- the data returned by the fetch request (`posts`)
-- the `isLoaded` state
+- The data returned by the fetch request (`posts`).
+- The `isLoaded` state.
 
 But how can we get this data **out** of the custom hook? Well, since a custom
 hook is **just a function**, all we need to do is have our hook **return**
 whatever data we need!
 
 ```jsx
-// src/hooks/useQuery.js
+// src/hooks/useQuery.ts
 import { useState, useEffect } from "react";
+import { Post } from "../data/types";
 
 function useQuery() {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState<Post[]>([]);
 
   useEffect(() => {
     setIsLoaded(false);
@@ -274,8 +278,8 @@ function HomePage() {
 
 Our `HomePage` component is now significantly cleaner, because it no longer has
 to worry about all the logic related to handling the fetch request and setting
-state based on the response — all of that logic is now nicely encapsulated
-in our `useQuery` hook!
+state based on the response — all of that logic is now nicely encapsulated in
+our `useQuery` hook!
 
 In order to get this hook to work with the `ArticlePage` component as well, we
 need to refactor it a bit and abstract away the logic that is specific to the
@@ -283,10 +287,11 @@ need to refactor it a bit and abstract away the logic that is specific to the
 
 ```jsx
 // take in the url
-function useQuery(url) {
+function useQuery(url: string) {
   const [isLoaded, setIsLoaded] = useState(false);
   // rename `posts` to a more generic `data`
-  const [data, setData] = useState(null);
+  // expand typing to also accept a single Post and the null initial value
+  const [data, setData] = useState<Post[] | Post | null>(null);
 
   useEffect(() => {
     setIsLoaded(false);
@@ -344,21 +349,21 @@ scratch in each new component.
 optimizations we could make to improve it, such as:
 
 - Handling errors with `.catch` and adding an error state
-- Using one state variable instead of
-  [multiple state variables][react state faq], so that it doesn't re-render more
-  than necessary
+- Using one state variable instead of [multiple state
+  variables][react state faq], so that it doesn't re-render more than necessary
 - [Using the useReducer hook instead of useState][use-reducer] to manage state
   transitions
-- [Caching our fetched data][memoization] to prevent unnecessary network requests
-- [Cancel the fetch][fetch cancel] if the component un-mounts before the fetch is
-  complete
+- [Caching our fetched data][memoization] to prevent unnecessary network
+  requests
+- [Cancel the fetch][fetch cancel] if the component un-mounts before the fetch
+  is complete
 
 You're encouraged to try adding a few of these optimizations to this hook
 yourself! There's also a version of the `useQuery` hook in the solution branch
 called `useQueryAdvanced` that handles some of these optimizations. However,
-there are also pre-built solutions out there, such as
-[React Query][react query], that handle this logic (and more) with a pre-built
-custom hook.
+there are also pre-built solutions out there, such as [React
+Query][react query], that handle this logic (and more) with a pre-built custom
+hook.
 
 ## Conclusion
 
@@ -376,7 +381,8 @@ to your projects!
 
 [title]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/title
 [destructure rename]: https://wesbos.com/destructuring-renaming
-[react state faq]: https://reactjs.org/docs/hooks-faq.html#should-i-use-one-or-many-state-variables
+[react state faq]:
+  https://reactjs.org/docs/hooks-faq.html#should-i-use-one-or-many-state-variables
 [use-reducer]: https://reactjs.org/docs/hooks-reference.html#usereducer
 [memoization]: https://flaviocopes.com/javascript-memoization/
 [fetch cancel]: https://davidwalsh.name/cancel-fetch
