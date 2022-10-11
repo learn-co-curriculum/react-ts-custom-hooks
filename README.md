@@ -344,11 +344,47 @@ function ArticlePage() {
 }
 ```
 
-With our custom hooks in place, the completed versions of the `HomePage` and
-`ArticlePage` components are now both significantly shorter. Also, adding new
-components to our application that need access to similar functionality is now
-significantly easier, since we don't have to rewrite that functionality from
-scratch in each new component.
+One problem though, TypeScript doesn't quite like this change. Looking back at
+our custom `useQuery` hook, we said that the `data` variable can either be an
+array of `Post` objects, or just the `Post` object itself or even null.
+
+However, further down in `ArticlePage` we try to destructure the renamed `post`
+variable and access properties on it via dot notation. As the developers, we
+know that the `post` data we get back _will_ be an object, but TypeScript
+doesn't know that. It only knows it can either be an array, an object, or a null
+value, so it complains when we treat it exclusively as an object.
+
+A quick way to get around that is by using [type assertion][type assertion]:
+
+```tsx
+// src/components/ArticlePage.tsx
+function ArticlePage() {
+  // ...
+
+  // set the document title
+  const pageTitle = post
+    ? `Underreacted | ${(post as Post).title}`
+    : "Underreacted";
+
+  // ...
+
+  const { minutes, title, date, preview } = post as Post;
+
+  // ...
+}
+```
+
+This ensures TypeScript that `post` _will_ be the of type `Post`, not null or an
+array. Because we only need to do it twice here, this is a fine solution. If
+your app grew, however, and you found yourself needing to use type assertion
+multiple times over, it would be better to use [narrowing][narrowing] within the
+`useQuery` hook.
+
+With our typing and custom hooks in place, the completed versions of the
+`HomePage` and `ArticlePage` components are now both significantly shorter.
+Also, adding new components to our application that need access to similar
+functionality is now significantly easier, since we don't have to rewrite that
+functionality from scratch in each new component.
 
 **Note**: While our `useQuery` hook works nicely in this example, there are some
 optimizations we could make to improve it, such as:
@@ -395,3 +431,6 @@ to your projects!
 [router hooks]: https://reactrouter.com/web/api/Hooks
 [redux hooks]: https://react-redux.js.org/api/hooks
 [awesome hooks]: https://github.com/rehooks/awesome-react-hooks
+[type assertion]:
+  https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#type-assertions
+[narrowing]: https://www.typescriptlang.org/docs/handbook/2/narrowing.html
