@@ -266,6 +266,7 @@ component, and **destructure** the return value to get the `posts` and
 `isLoaded` state out:
 
 ```jsx
+// src/hooks/useQuery.ts
 import useQuery from "../hooks/useQuery";
 
 function HomePage() {
@@ -286,6 +287,8 @@ need to refactor it a bit and abstract away the logic that is specific to the
 `HomePage` component's needs.
 
 ```jsx
+// src/hooks/useQuery.ts
+
 // take in the url
 function useQuery(url: string) {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -314,6 +317,7 @@ Now, to use our more generic version of this hook in the `HomePage` component,
 we just need to make a couple small changes:
 
 ```jsx
+// src/components/HomePage.tsx
 function HomePage() {
   const { data: posts, isLoaded } = useQuery("http://localhost:4000/posts");
 
@@ -329,6 +333,7 @@ destructuring.
 The `useQuery` hook should now also work with our `ArticlePage` component:
 
 ```jsx
+// src/components/ArticlePage.tsx
 function ArticlePage() {
   const { id } = useParams();
   const { data: post, isLoaded } = useQuery(
