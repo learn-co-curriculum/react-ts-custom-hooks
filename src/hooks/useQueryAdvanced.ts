@@ -1,3 +1,6 @@
+// @ts-nocheck
+// note: this file is written in pure vanilla javascript
+
 const { useReducer, useEffect } = require("react");
 
 // helper function that returns a fetch function as well as an abort method so we can cancel the fetch if needed
