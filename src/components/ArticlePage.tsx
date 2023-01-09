@@ -1,19 +1,20 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { makeEmojiList } from "../utils";
+import { Post } from "../data/types";
 
 function ArticlePage() {
   // fetch data for a post
   const { id } = useParams();
   const [isLoaded, setIsLoaded] = useState(false);
-  const [post, setPost] = useState(null);
+  const [post, setPost] = useState<Post | null>(null);
 
   const url = `http://localhost:4000/posts/${id}`;
   useEffect(() => {
     setIsLoaded(false);
     fetch(url)
       .then((r) => r.json())
-      .then((post) => {
+      .then((post: Post) => {
         setPost(post);
         setIsLoaded(true);
       });
@@ -27,7 +28,7 @@ function ArticlePage() {
 
   if (!isLoaded) return <h3>Loading...</h3>;
 
-  const { minutes, title, date, preview } = post;
+  const { minutes, title, date, preview } = post!;
   const emojis = makeEmojiList(minutes);
 
   return (

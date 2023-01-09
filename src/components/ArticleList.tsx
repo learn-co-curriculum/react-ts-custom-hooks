@@ -1,7 +1,11 @@
-import React from "react";
 import ArticlePreview from "./ArticlePreview";
+import { Post } from "../data/types";
 
-function ArticleList({ posts }) {
+interface Props {
+  posts: Post[];
+}
+
+function ArticleList({ posts }: Props) {
   return (
     <main>
       {posts.map((post) => (

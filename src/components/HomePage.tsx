@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import About from "./About";
 import ArticleList from "./ArticleList";
+import { Post } from "../data/types";
 
 function HomePage() {
   // fetch data for posts
   const [isLoaded, setIsLoaded] = useState(false);
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState<Post[]>([]);
 
   useEffect(() => {
     setIsLoaded(false);
